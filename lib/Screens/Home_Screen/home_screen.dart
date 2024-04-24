@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: tabs[index],
+
     );
   }
 
