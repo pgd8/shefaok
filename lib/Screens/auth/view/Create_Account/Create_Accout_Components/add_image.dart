@@ -23,8 +23,6 @@ class _AddImageState extends State<AddImage> {
       // ignore: use_build_context_synchronously
       BlocProvider.of<AuthBloc>(context).imageFile = imageFile;
       setState(() {});
-      // setState(() => this.image = imageTemporary);
-      // return image;
     } else {}
   }
 

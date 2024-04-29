@@ -1,34 +1,48 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:flutter/cupertino.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/Screens/Edit_Profile_Screen/edit_profile_screen.dart';
+import 'package:shefa2ok/Screens/auth/bloc/auth_bloc.dart';
+import 'package:shefa2ok/Screens/login_or_register/login_or_register_view.dart';
+import 'package:shefa2ok/Screens/login_or_register/widgets/login_tab.dart';
+import 'package:shefa2ok/core/cache_service.dart';
 
 class SettingsTab extends StatefulWidget {
-  SettingsTab({super.key});
-
-  bool firstSwitchValue = true;
-  bool secondSwitchValue = true;
-  bool thirdSwitchValue = true;
-  bool fourthSwitchValue = true;
+  const SettingsTab({super.key});
 
   @override
   State<SettingsTab> createState() => _SettingsTabState();
 }
 
 class _SettingsTabState extends State<SettingsTab> {
+  bool firstSwitchValue = true;
+  bool secondSwitchValue = true;
+  bool thirdSwitchValue = true;
+  bool fourthSwitchValue = true;
+  late final AuthBloc bloc;
+  bool isLoading = false;
+  @override
+  void initState() {
+    bloc = BlocProvider.of<AuthBloc>(context);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
               children: [
+                SizedBox(
+                  height: 0.03.sh,
+                ),
                 Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
@@ -75,24 +89,24 @@ class _SettingsTabState extends State<SettingsTab> {
                 SizedBox(
                   height: 0.04.sh,
                 ),
-                SizedBox(
-                  child: TextFormField(
-                    // controller: ,
-                    validator: (value) {},
-                    onChanged: (value) {},
-                    decoration: InputDecoration(
-                        isDense: true,
-                        hintText: 'Search',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.r),
-                          borderSide: BorderSide(color: Colors.grey),
-                        )),
-                  ),
-                ),
-                SizedBox(
-                  height: 0.035.sh,
-                ),
+                // SizedBox(
+                //   child: TextFormField(
+                //     // controller: ,
+                //     validator: (value) {},
+                //     onChanged: (value) {},
+                //     decoration: InputDecoration(
+                //         isDense: true,
+                //         hintText: 'Search',
+                //         prefixIcon: Icon(Icons.search),
+                //         border: OutlineInputBorder(
+                //           borderRadius: BorderRadius.circular(15.r),
+                //           borderSide: BorderSide(color: Colors.grey),
+                //         )),
+                //   ),
+                // ),
+                // SizedBox(
+                //   height: 0.035.sh,
+                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -103,9 +117,9 @@ class _SettingsTabState extends State<SettingsTab> {
                           activeTrackColor: Color(0xff86CDD0),
                           inactiveThumbColor: Color(0xff86CDD0),
                           inactiveTrackColor: Colors.white,
-                          value: widget.firstSwitchValue,
+                          value: firstSwitchValue,
                           onChanged: (value) => setState(() {
-                                widget.firstSwitchValue = value;
+                                firstSwitchValue = value;
                               })),
                     ),
                     Text(
@@ -127,9 +141,9 @@ class _SettingsTabState extends State<SettingsTab> {
                           activeTrackColor: Color(0xff86CDD0),
                           inactiveThumbColor: Color(0xff86CDD0),
                           inactiveTrackColor: Colors.white,
-                          value: widget.secondSwitchValue,
+                          value: secondSwitchValue,
                           onChanged: (value) => setState(() {
-                                widget.secondSwitchValue = value;
+                                secondSwitchValue = value;
                               })),
                     ),
                     Text(
@@ -151,9 +165,9 @@ class _SettingsTabState extends State<SettingsTab> {
                           activeTrackColor: Color(0xff86CDD0),
                           inactiveThumbColor: Color(0xff86CDD0),
                           inactiveTrackColor: Colors.white,
-                          value: widget.thirdSwitchValue,
+                          value: thirdSwitchValue,
                           onChanged: (value) => setState(() {
-                                widget.thirdSwitchValue = value;
+                                thirdSwitchValue = value;
                               })),
                     ),
                     Text(
@@ -175,9 +189,9 @@ class _SettingsTabState extends State<SettingsTab> {
                           activeTrackColor: Color(0xff86CDD0),
                           inactiveThumbColor: Color(0xff86CDD0),
                           inactiveTrackColor: Colors.white,
-                          value: widget.fourthSwitchValue,
+                          value: fourthSwitchValue,
                           onChanged: (value) => setState(() {
-                                widget.fourthSwitchValue = value;
+                                fourthSwitchValue = value;
                               })),
                     ),
                     Text(
@@ -189,15 +203,40 @@ class _SettingsTabState extends State<SettingsTab> {
                 SizedBox(
                   height: 0.035.sh,
                 ),
-                SizedBox(
-                  child: MaterialButton(
-                    onPressed: () {},
-                    color: Color(0xff86CDD0),
-                    child: Center(
-                        child: Text(
-                      'تسجيل الخروج',
-                      style: TextStyle(color: Colors.white),
-                    )),
+                BlocListener<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state is SignOutLoading) {
+                      isLoading = true;
+                    } else if (state is SignOutSuccess) {
+                      isLoading = false;
+                      CacheService.clearData();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginOrRegisterView()),
+                      );
+                    } else if (state is SignOutFailure) {
+                      isLoading = false;
+                      BotToast.showText(
+                        text: state.errorMsg!,
+                      );
+                    }
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      bloc.add(SignOutEvent());
+                    },
+                    child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff86CDD0),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Color(0xff86CDD0))),
+                        child: Center(
+                            child: Text(
+                          'تسجيل الخروج',
+                          style: TextStyle(color: Colors.white),
+                        ))),
                   ),
                 )
               ],

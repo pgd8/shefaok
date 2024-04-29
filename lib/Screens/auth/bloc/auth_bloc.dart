@@ -4,10 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-
+import 'package:shefa2ok/core/cache_service.dart';
+import 'package:shefa2ok/core/const_text.dart';
 part 'auth_event.dart';
-
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -36,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterEvent>((event, emit) async {
       emit(RegisterLoading());
       try {
-        phone = await convertPhoneToEmail(phoneController.text.toString());
+        phone = convertPhoneToEmail(phoneController.text.toString());
 
         await signUpAuth();
         await userInfo(
@@ -48,6 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           gender,
           imageFile?.path.toString(),
         );
+
         emit(RegisterSuccess('Account created successfully'));
       } on FirebaseAuthException catch (e) {
         print(e);
@@ -56,6 +56,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(RegisterFailure(errorMsg: 'Something went wrong'));
       }
     });
+    on<SignOutEvent>((event, emit) async {
+      emit(SignOutLoading());
+      try {
+        signOut;
+        passwordController.clear();
+        nameController.clear();
+        phoneController.clear();
+        emit(SignOutSuccess());
+      } catch (e) {
+        emit(SignOutFailure(errorMsg: 'Something went wrong'));
+      }
+    });
+  }
+  void signOut(context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      print('User signed out successfully');
+    } catch (e) {
+      print('Error signing out: $e');
+    }
   }
 
   void signInError(FirebaseAuthException e, Emitter<AuthState> emit) {
@@ -90,8 +111,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     print(FirebaseAuth.instance.currentUser!.uid);
   }
-
- 
 }
 
 Future<void> userInfo(
@@ -108,8 +127,16 @@ Future<void> userInfo(
       "birthday": birthday,
       "gender": gender,
       "image": image,
-      "uid": FirebaseAuth.instance.currentUser?.uid,
+      "uid": currentUser.uid,
     });
+    CacheService.setData(
+      key: ConstText().currentUID,
+      value: currentUser.uid,
+    );
+    CacheService.setData(
+      key: ConstText().name,
+      value: name,
+    );
   } else {
     // Handle the case where currentUser is null
     print('Current user is null');

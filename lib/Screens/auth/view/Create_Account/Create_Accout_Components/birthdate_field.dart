@@ -30,7 +30,7 @@ class _BirthDateFieldState extends State<BirthDateField> {
             ),
           ),
           SizedBox(
-            height: 0.02.sh,
+            height: 0.005.sh,
           ),
           GestureDetector(
             onTap: () async {

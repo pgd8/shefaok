@@ -105,22 +105,34 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                             bloc.add(RegisterEvent());
                           }
                         },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: MyTheme.primaryColor,
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(
-                                child: Text(
-                              'تم',
-                              style: TextStyle(
-                                color: Colors.white,
+                        child: isLoading
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.grey,
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: MyTheme.primaryColor,
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Center(
+                                      child: Text(
+                                    'إنشاء حساب',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                                ),
                               ),
-                            )),
-                          ),
-                        ),
                       )
                     ],
                   ),

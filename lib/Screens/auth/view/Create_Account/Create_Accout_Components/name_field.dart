@@ -6,33 +6,41 @@ class NameField extends StatelessWidget {
   final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Align(
-          alignment: Alignment.topRight,
-          child: Text(
-            'الاسم ',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Column(
+        children: [
+          const Align(
+            alignment: Alignment.topRight,
+            child: Text(
+              'الاسم ',
+            ),
           ),
-        ),
-        SizedBox(
-          height: 0.005.sh,
-        ),
-        TextFormField(
-          onChanged: (value) {},
-          controller: controller,
-          keyboardType: TextInputType.name,
-          decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(16),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              hintText: 'ادخل الاسم',
-              hintTextDirection: TextDirection.rtl),
-          validator: (value) {},
-          obscureText: false,
-        ),
-      ],
+          SizedBox(
+            height: 0.005.sh,
+          ),
+          TextFormField(
+            onChanged: (value) {},
+            controller: controller,
+            keyboardType: TextInputType.name,
+            decoration: const InputDecoration(
+                contentPadding: EdgeInsets.all(16),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                hintText: 'ادخل الاسم',
+                hintTextDirection: TextDirection.rtl),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'برجاء إدخال الإسم';
+              }
+              return null;
+            },
+            obscureText: false,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -27,3 +27,13 @@ class LoginFailure extends AuthState {
 
   LoginFailure({required errorMsg});
 }
+
+class SignOutLoading extends AuthState {}
+
+class SignOutSuccess extends AuthState {}
+
+class SignOutFailure extends AuthState {
+  String? errorMsg;
+
+  SignOutFailure({required errorMsg});
+}

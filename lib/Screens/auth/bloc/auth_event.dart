@@ -9,3 +9,6 @@ class LoginEvent extends AuthEvent {
 class RegisterEvent extends AuthEvent {
   RegisterEvent();
 }
+class SignOutEvent extends AuthEvent {
+  SignOutEvent();
+}

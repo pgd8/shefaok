@@ -7,6 +7,7 @@ import 'package:shefa2ok/Screens/Home_Screen/home_screen.dart';
 import 'package:shefa2ok/Screens/auth/bloc/auth_bloc.dart';
 import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/phone_num_field.dart';
 import 'package:shefa2ok/core/cache_service.dart';
+import 'package:shefa2ok/core/const_text.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -32,7 +33,7 @@ class _LoginViewState extends State<LoginView> {
         if (state is LoginLoading) {
           isLoading = true;
         } else if (state is LoginSuccess) {
-          CacheService.setData(key: 'authed', value: true);
+          CacheService.setData(key: ConstText().authed, value: true);
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -80,7 +81,17 @@ class _LoginViewState extends State<LoginView> {
                         bloc.add(LoginEvent());
                       }
                     },
-                    child: Container(
+                    child: isLoading? Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey,
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(
+                            child: CircularProgressIndicator()),
+                      ),
+                    ):Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: MyTheme.primaryColor,
@@ -89,7 +100,7 @@ class _LoginViewState extends State<LoginView> {
                         padding: EdgeInsets.all(16.0),
                         child: Center(
                             child: Text(
-                          'تم',
+                          'تسجيل الدخول',
                           style: TextStyle(
                             color: Colors.white,
                           ),

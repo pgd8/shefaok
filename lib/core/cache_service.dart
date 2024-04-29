@@ -35,4 +35,8 @@ class CacheService {
   static Future<bool> removeData({required dynamic key}) {
     return sharedPreferences!.remove(key);
   }
+
+  static Future<bool> clearData() {
+    return sharedPreferences!.clear();
+  }
 }
