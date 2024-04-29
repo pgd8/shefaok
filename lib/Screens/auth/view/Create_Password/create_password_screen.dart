@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shefa2ok/Screens/Create_Password/Create_Password_Components/create_password_form.dart';
+import 'package:shefa2ok/Screens/auth/view/Create_Password/Create_Password_Components/create_password_form.dart';
 
 class CreatePasswordScreen extends StatelessWidget {
   static const String routeName = "Create Password";

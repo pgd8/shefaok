@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/Create_Account/Create_Accout_Components/screen_title.dart';
+import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/screen_title.dart';
 import 'package:shefa2ok/Screens/Edit_Profile_Screen/Edit_Profile_Components/birthdate_field_pr.dart';
 import 'package:shefa2ok/Screens/Edit_Profile_Screen/Edit_Profile_Components/gender_field_pr.dart';
 import 'package:shefa2ok/Screens/Edit_Profile_Screen/Edit_Profile_Components/name_field_pr.dart';

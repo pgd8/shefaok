@@ -1,12 +1,14 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/Forgot_Password/forgot_password.dart';
+import 'package:shefa2ok/Screens/Home_Screen/home_screen.dart';
+import 'package:shefa2ok/Screens/login_or_register/login_or_register_view.dart';
+import 'package:shefa2ok/core/cache_service.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = "Splash Screen";
+
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -25,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: MyTheme.primaryColor,
       body: Center(
-        child: Container(
+        child: SizedBox(
           width: 0.9.sw,
           height: 0.6.sh,
           child: Image.asset("assets/images/Logo.png"),
@@ -39,7 +41,14 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ForgotPasswordScreen(),
+            builder: (context) =>
+                CacheService.getData(key: 'authed') == false ||
+                        CacheService.getData(
+                              key: 'authed',
+                            ) ==
+                            null
+                    ? const LoginOrRegisterView()
+                    : HomeScreen(),
           ));
     });
   }

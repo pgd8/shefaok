@@ -60,14 +60,14 @@ class WritingScreenState extends State<WritingScreen> {
                   hintText: "ادخل اسم العلاج",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(
                             255, 135, 205, 206)), // تحديد لون الحدود الخارجية
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 135, 205,
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 135, 205,
                             206)), // تحديد لون الحدود الخارجية عند التركيز
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.w),

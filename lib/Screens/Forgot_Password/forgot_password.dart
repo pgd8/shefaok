@@ -8,7 +8,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,7 +49,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   ),
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content:
                     Text('تم إرسال رمز التحقق لإعادة تعيين كلمة المرور'),
                   ),
@@ -57,9 +57,9 @@ class ForgotPasswordScreen extends StatelessWidget {
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
-                    Color(0xFF86CDD0)), // تعيين لون الزر هنا
+                    const Color(0xFF86CDD0)), // تعيين لون الزر هنا
               ),
-              child: Text(
+              child: const Text(
                 'ارسال',
                 style: TextStyle(color: Colors.white), // تعيين لون النص هنا
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shefa2ok/Screens/Create_Password/create_password_screen.dart';
+import 'package:shefa2ok/Screens/auth/view/Create_Password/create_password_screen.dart';
 
 class VerificationCodeForm extends StatefulWidget {
   @override

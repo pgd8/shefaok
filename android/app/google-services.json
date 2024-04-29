@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "677459393866",
+    "project_id": "shefaok-caa42",
+    "storage_bucket": "shefaok-caa42.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677459393866:android:d36df8c6af31b11b9455b3",
+        "android_client_info": {
+          "package_name": "com.example.shefaok"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTQI_Bvu-XgmTPy3_TnKzuCKt7InLCSHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
