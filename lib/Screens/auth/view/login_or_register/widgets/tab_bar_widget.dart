@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/login_or_register/widgets/login_tab.dart';
-import 'package:shefa2ok/Screens/login_or_register/widgets/register_tab.dart';
+import 'package:shefa2ok/Screens/auth/view/login_or_register/widgets/login_tab.dart';
+import 'package:shefa2ok/Screens/auth/view/login_or_register/widgets/register_tab.dart';
 
 class TabBarWidget extends StatefulWidget {
   const TabBarWidget({super.key});

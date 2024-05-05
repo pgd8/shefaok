@@ -1,21 +1,23 @@
-// ignore_for_file: use_key_in_widget_constructors
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/Home_Screen/home_screen.dart';
+import 'package:shefa2ok/Screens/tabs/tab_view.dart';
 import 'package:shefa2ok/Screens/auth/bloc/auth_bloc.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/add_image.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/birthdate_field.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/gender_field.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/name_field.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/phone_num_field.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/screen_title.dart';
-import 'package:shefa2ok/core/cache_service.dart';
+import 'package:shefa2ok/Screens/auth/widgets/add_image.dart';
+import 'package:shefa2ok/Screens/auth/widgets/birthdate_field.dart';
+import 'package:shefa2ok/Screens/auth/widgets/gender_field.dart';
+import 'package:shefa2ok/Screens/auth/widgets/name_field.dart';
+import 'package:shefa2ok/Screens/auth/widgets/phone_num_field.dart';
+import 'package:shefa2ok/Screens/auth/widgets/screen_title.dart';
+import 'package:shefa2ok/core/services/cache_service.dart';
+import 'package:shefa2ok/core/consts/const_text.dart';
+import 'package:shefa2ok/core/shared_widgets/button_builder.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   static const String routeName = "Create Account";
+
+  const CreateAccountScreen({super.key});
 
   @override
   State<CreateAccountScreen> createState() => _CreateAccountScreenState();
@@ -39,11 +41,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         if (state is RegisterLoading) {
           isLoading = true;
         } else if (state is RegisterSuccess) {
-          CacheService.setData(key: 'authed', value: true);
+          CacheService.setData(key: ConstText().authed, value: true);
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreen(),
+                builder: (context) => TabView(),
               ));
 
           isLoading = false;
@@ -65,7 +67,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               scrollDirection: Axis.vertical,
               child: Padding(
                 padding: const EdgeInsets.only(
-                    left: 16, right: 16, top: 4, bottom: 8),
+                  left: 16,
+                  right: 16,
+                  top: 4,
+                  bottom: 8,
+                ),
                 child: Form(
                   key: formKey,
                   child: Column(
@@ -99,41 +105,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       SizedBox(
                         height: 0.04.sh,
                       ),
-                      GestureDetector(
-                        onTap: () {
+                      ButtonBuilder(
+                        text: 'إنشاء حساب',
+                        ontap: () {
                           if (formKey.currentState!.validate()) {
                             bloc.add(RegisterEvent());
                           }
                         },
-                        child: isLoading
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Colors.grey,
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                ),
-                              )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: MyTheme.primaryColor,
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Center(
-                                      child: Text(
-                                    'إنشاء حساب',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  )),
-                                ),
-                              ),
-                      )
+                        isLoading: isLoading,
+                      ),
                     ],
                   ),
                 ),

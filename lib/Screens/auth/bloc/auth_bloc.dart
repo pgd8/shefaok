@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shefa2ok/core/cache_service.dart';
-import 'package:shefa2ok/core/const_text.dart';
+import 'package:shefa2ok/core/services/cache_service.dart';
+import 'package:shefa2ok/core/consts/const_text.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -39,14 +39,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         await signUpAuth();
         await userInfo(
-          phone,
-          passwordController.text.toString(),
-          nameController.text.toString(),
-          phoneController.text.toString(),
-          birthday,
-          gender,
-          imageFile?.path.toString(),
-        );
+            phone,
+            passwordController.text.toString(),
+            nameController.text.toString(),
+            phoneController.text.toString(),
+            birthday,
+            gender,
+            imageFile?.path.toString(), []);
 
         emit(RegisterSuccess('Account created successfully'));
       } on FirebaseAuthException catch (e) {
@@ -68,6 +67,54 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(SignOutFailure(errorMsg: 'Something went wrong'));
       }
     });
+
+    on<EditProfileEvent>(
+      (event, emit) async {
+        emit(EditProfileLoading());
+        try {
+          // Get the current user
+          User? user = FirebaseAuth.instance.currentUser;
+
+          // Update user password
+          await user!.updatePassword(passwordController.text.toString());
+
+          String currentUID = CacheService.getData(key: ConstText().currentUID);
+
+          // Query for the document containing the user's UID
+          QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .where('uid', isEqualTo: currentUID)
+              .get();
+
+          // Check if the document exists
+          if (querySnapshot.docs.isNotEmpty) {
+            // Get the document reference
+            DocumentReference documentReference =
+                querySnapshot.docs.first.reference;
+
+            // Get the current data from the document
+            Map<String, dynamic> data =
+                querySnapshot.docs.first.data() as Map<String, dynamic>;
+
+            // Update specific fields in the data
+            data['Name'] = nameController.text.toString();
+            data['birthday'] = birthday.toString();
+            data['gender'] = gender.toString();
+            data['image'] = imageFile.toString();
+            data['Password'] = passwordController.text.toString();
+            // Add more fields to update as needed
+
+            // Update the document with the modified data
+            await documentReference.update(data);
+            emit(EditProfileSuccess(msg: 'Profile updated successfully'));
+          } else {
+            emit(EditProfileFailure(errorMsg: 'Something went wrong'));
+          }
+        } catch (e) {
+          emit(EditProfileFailure(errorMsg: 'Something went wrong'));
+        }
+      },
+    );
   }
   void signOut(context) async {
     try {
@@ -114,7 +161,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 }
 
 Future<void> userInfo(
-    email, password, name, phone, birthday, gender, image) async {
+    email, password, name, phone, birthday, gender, image, userMedicine) async {
   final CollectionReference users =
       FirebaseFirestore.instance.collection('users');
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -127,6 +174,7 @@ Future<void> userInfo(
       "birthday": birthday,
       "gender": gender,
       "image": image,
+      "userMedicine": userMedicine,
       "uid": currentUser.uid,
     });
     CacheService.setData(

@@ -2,12 +2,12 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/Home_Screen/home_screen.dart';
+import 'package:shefa2ok/Screens/tabs/tab_view.dart';
 import 'package:shefa2ok/Screens/auth/bloc/auth_bloc.dart';
-import 'package:shefa2ok/Screens/auth/view/Create_Account/Create_Accout_Components/phone_num_field.dart';
-import 'package:shefa2ok/core/cache_service.dart';
-import 'package:shefa2ok/core/const_text.dart';
+import 'package:shefa2ok/Screens/auth/widgets/phone_num_field.dart';
+import 'package:shefa2ok/core/services/cache_service.dart';
+import 'package:shefa2ok/core/consts/const_text.dart';
+import 'package:shefa2ok/core/shared_widgets/button_builder.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -37,7 +37,7 @@ class _LoginViewState extends State<LoginView> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreen(),
+                builder: (context) => const TabView(),
               ));
           isLoading = false;
         } else if (state is LoginFailure) {
@@ -75,38 +75,14 @@ class _LoginViewState extends State<LoginView> {
                   SizedBox(
                     height: 0.04.sh,
                   ),
-                  GestureDetector(
-                    onTap: () {
+                  ButtonBuilder(
+                    text: 'تسجيل الدخول',
+                    ontap: () {
                       if (formKey.currentState!.validate()) {
                         bloc.add(LoginEvent());
                       }
                     },
-                    child: isLoading? Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(
-                            child: CircularProgressIndicator()),
-                      ),
-                    ):Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: MyTheme.primaryColor,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(
-                            child: Text(
-                          'تسجيل الدخول',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        )),
-                      ),
-                    ),
+                    isLoading: isLoading,
                   ),
                   SizedBox(
                     height: 0.04.sh,

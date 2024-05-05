@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/tabs/add_time.dart';
-import 'package:shefa2ok/tabs/check_tab.dart';
+import 'package:shefa2ok/Screens/add_time/add_time.dart';
+import 'package:shefa2ok/Screens/add_time/cubit/for_add_cubit.dart';
+import 'package:shefa2ok/Screens/home/view/home_view.dart';
+import 'package:shefa2ok/Screens/check/check_tab.dart';
 import 'package:shefa2ok/tabs/settings_tab.dart';
 
-class HomeScreen extends StatefulWidget {
+class TabView extends StatefulWidget {
   static const String routeName = "Home Screen";
 
+  const TabView({super.key});
+
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<TabView> createState() => _TabViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _TabViewState extends State<TabView> {
   int index = 0;
 
   @override
@@ -40,20 +45,22 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.access_time_rounded), label: "إضافة"),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined), label: "الاعدادات"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline), label: "شات بوت"),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.chat_bubble_outline), label: "شات بوت"),
         ],
       ),
       body: tabs[index],
-
     );
   }
 
   List<Widget> tabs = [
-    Container(),
+    const HomeView(),
     CheckTab(),
-    const AddTimeTap(),
-    SettingsTab(),
-    Container(),
+    BlocProvider<ForAddCubit>(
+      create: (context) => ForAddCubit()..fetchMedicineData(),
+      child: const AddTimeTap(),
+    ),
+    const SettingsTab(),
+    // Container(),
   ];
 }

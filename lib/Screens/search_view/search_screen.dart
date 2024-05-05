@@ -1,133 +1,110 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shefa2ok/My_App/my_theme.dart';
 
-class WritingScreen extends StatefulWidget {
-  static const String routeName = "Writing Screen";
-
-  const WritingScreen({super.key});
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
 
   @override
-  State<WritingScreen> createState() => WritingScreenState();
+  SearchScreenState createState() => SearchScreenState();
 }
 
-class WritingScreenState extends State<WritingScreen> {
+class SearchScreenState extends State<SearchScreen> {
+  TextEditingController searchController = TextEditingController();
+  List<String> suggestions = [];
+  List<String> suggestionsLoc = [];
+  List<dynamic> interactions = [];
+  List<dynamic> nonInteractions = [];
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(390, 844));
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 0.04.sh,
+        title: const Text('Medicine Search'),
       ),
-      body: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 25.r,
-                    backgroundImage:
-                        const AssetImage("assets/images/doctor.jpg"),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Text(
-                    "اسم المريض",
-                    style:
-                        TextStyle(fontSize: 21.sp, fontWeight: FontWeight.w600),
-                  )
-                ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              onChanged: (value) {
+                _getSuggestions(value);
+              },
+              decoration: const InputDecoration(
+                hintText: 'Search Medicine',
               ),
-              SizedBox(
-                height: 25.h,
-              ),
-              Text(
-                "اسم العلاج",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
-              ),
-              SizedBox(
-                height: 8.h,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: "ادخل اسم العلاج",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(
-                            255, 135, 205, 206)), // تحديد لون الحدود الخارجية
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: const BorderSide(
-                        color: Color.fromARGB(255, 135, 205,
-                            206)), // تحديد لون الحدود الخارجية عند التركيز
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: 0.06.sh,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
-                    color: MyTheme.primaryColor,
-                  ),
-                  child: Center(
-                    child: Text(
-                      "البحث",
-                      style: TextStyle(
-                          fontSize: 18.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  //successDialog();
-                  failedDialog();
-                },
-              ),
-              SizedBox(
-                height: 0.02.sh,
-              ),
-              TextButton(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: 0.07.sh,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.r),
-                      color: Colors.white,
-                      border: const Border.fromBorderSide(
-                          BorderSide(color: MyTheme.primaryColor, width: 2.0))),
-                  child: Center(
-                    child: Text(
-                      "الرجوع",
-                      style: TextStyle(
-                          fontSize: 18.sp,
-                          color: MyTheme.primaryColor,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+          suggestions.isNotEmpty
+              ? Expanded(
+                  child: ListView.builder(
+                    itemCount: suggestions.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () async {
+                          if (nonInteractions.contains(suggestions[index])) {
+                            await successDialog();
+                          } else if (interactions
+                              .contains(suggestions[index])) {
+                            await failedDialog();
+                          }
+                        },
+                        child: ListTile(
+                          title: Text(suggestions[index]),
+                          // Add onTap functionality to navigate or perform other actions
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : const Text('لا يوجد بيانات في الوقت الحالي'),
+        ],
       ),
     );
+  }
+
+  Future<void> _getSuggestions(String query) async {
+    // Clear previous suggestions
+    setState(() {
+      suggestions.clear();
+    });
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('medicine')
+        .doc('interactionSearch')
+        .get();
+    var data = snapshot.data() as Map<String, dynamic>;
+    if (data['interactionSearch'] != null) {
+      interactions = data['interactionSearch'];
+      for (var interaction in interactions) {
+        if (interaction.toLowerCase().contains(query.toLowerCase())) {
+          setState(() {
+            suggestions.add('$interaction');
+            suggestionsLoc.add('Found in interactionSearch');
+          });
+        }
+      }
+    }
+    DocumentSnapshot snapshot2 = await FirebaseFirestore.instance
+        .collection('medicine')
+        .doc(' nonInteractionSearch')
+        .get();
+    if (snapshot2.exists) {
+      var data2 = snapshot2.data() as Map<String, dynamic>;
+
+      if (data2['nonInteractionSearch'] != null) {
+        nonInteractions = data2['nonInteractionSearch'];
+        for (var nonInteraction in nonInteractions) {
+          if (nonInteraction.toLowerCase().contains(query.toLowerCase())) {
+            setState(() {
+              suggestions.add('$nonInteraction');
+              suggestionsLoc.add('Found in nonInteractionSearch');
+            });
+          }
+        }
+      }
+    }
   }
 
   Future successDialog() {
@@ -304,29 +281,6 @@ class WritingScreenState extends State<WritingScreen> {
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: TextButton(
-                                child: Container(
-                                  height: 35.h,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    color: const Color(0xff87cdce),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "الشات بوت",
-                                      style: TextStyle(
-                                          fontSize: 16.sp,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=> const ChatBotWelcomeTap()));
                                 },
                               ),
                             ),

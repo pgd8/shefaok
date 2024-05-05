@@ -37,3 +37,17 @@ class SignOutFailure extends AuthState {
 
   SignOutFailure({required errorMsg});
 }
+
+class EditProfileLoading extends AuthState {}
+
+class EditProfileSuccess extends AuthState {
+  final String? msg;
+
+  EditProfileSuccess({required this.msg});
+}
+
+class EditProfileFailure extends AuthState {
+  String? errorMsg;
+
+  EditProfileFailure({required errorMsg});
+}

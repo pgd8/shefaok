@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/My_App/my_theme.dart';
-import 'package:shefa2ok/Screens/login_or_register/widgets/tab_bar_widget.dart';
+import 'package:shefa2ok/Screens/auth/view/login_or_register/widgets/tab_bar_widget.dart';
 
 class LoginOrRegisterView extends StatelessWidget {
   const LoginOrRegisterView({super.key});
