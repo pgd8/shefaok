@@ -109,6 +109,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
             // Update the document with the modified data
             await documentReference.update(data);
+            CacheService.setData(key: ConstText().name, value:nameController.text.toString() );
             emit(EditProfileSuccess(msg: 'Profile updated successfully'));
           } else {
             emit(EditProfileFailure(errorMsg: 'Something went wrong'));

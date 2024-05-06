@@ -26,9 +26,10 @@ class _CheckTabState extends State<CheckTab> {
     var pickedimage = await ImagePicker().pickImage(source: source);
     if (pickedimage != null) {
       image = File(pickedimage.path);
+      await _processImage();
     }
 
-    await _processImage();
+
   }
 
   Future<void> _processImage() async {
