@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shefa2ok/core/services/cache_service.dart';
 import 'package:shefa2ok/core/consts/const_text.dart';
+
 part 'auth_event.dart';
+
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -17,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   late String birthday;
   late String phone;
   File? imageFile;
+
   AuthBloc() : super(AuthInitial()) {
     on<LoginEvent>((event, emit) async {
       emit(LoginLoading());
@@ -116,6 +119,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
     );
   }
+
   void signOut(context) async {
     try {
       await FirebaseAuth.instance.signOut();
@@ -156,6 +160,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       email: phone,
       password: passwordController.text.toString(),
     );
+    CacheService.setData(
+        key: ConstText().currentUID,
+        value: FirebaseAuth.instance.currentUser!.uid);
+    // print(object)
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('users')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid) // Specify the field and value to search for
+        .get();
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> docSnapshot
+    in querySnapshot.docs) {
+      Map<String, dynamic> userData = docSnapshot.data();
+
+      print(userData);CacheService.setData(key: ConstText().name, value: userData['Name']);
+      // Print or use the userData as required
+    }
+
+
+
+    CacheService.setData(
+        key: ConstText().currentUID,
+        value: FirebaseAuth.instance.currentUser!.uid);
     print(FirebaseAuth.instance.currentUser!.uid);
   }
 }
