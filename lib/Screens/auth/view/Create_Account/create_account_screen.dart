@@ -42,86 +42,208 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           isLoading = true;
         } else if (state is RegisterSuccess) {
           CacheService.setData(key: ConstText().authed, value: true);
+          isLoading = false;
+          setState(() {});
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => TabView(),
+                builder: (context) => const TabView(),
               ));
-
-          isLoading = false;
+          BotToast.showText(text: 'Registered Successfully');
         } else if (state is RegisterFailure) {
           isLoading = false;
           BotToast.showText(
-            text: state.errorMsg!,
+            text: state.errorMsg ?? 'Failed to register',
           );
         }
       },
       builder: (context, state) {
-        return SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-            ),
-            body: SingleChildScrollView(
-              physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
-              scrollDirection: Axis.vertical,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 4,
-                  bottom: 8,
-                ),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      CreateAccountScreenTitle(),
-                      const AddImage(),
-                      SizedBox(
-                        height: 0.02.sh,
-                      ),
-                      NameField(
-                        controller: bloc.nameController,
-                      ),
-                      SizedBox(
-                        height: 0.02.sh,
-                      ),
-                      PhoneNumField(
-                        controller: bloc.phoneController,
-                      ),
-                      SizedBox(
-                        height: 0.02.sh,
-                      ),
-                      const BirthDateField(),
-                      SizedBox(
-                        height: 0.02.sh,
-                      ),
-                      GenderField(),
-                      SizedBox(
-                        height: 0.02.sh,
-                      ),
-                      PasswordField(controller: bloc.passwordController),
-                      SizedBox(
-                        height: 0.04.sh,
-                      ),
-                      ButtonBuilder(
-                        text: 'إنشاء حساب',
-                        ontap: () {
-                          if (formKey.currentState!.validate()) {
-                            bloc.add(RegisterEvent());
-                          }
-                        },
-                        isLoading: isLoading,
-                      ),
-                    ],
+        if (state is RegisterLoading) {
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+              ),
+              body: SingleChildScrollView(
+                physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 4,
+                    bottom: 8,
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        registerColumn(),
+                        ButtonBuilder(
+                          text: 'إنشاء حساب',
+                          ontap: () {
+                            if (formKey.currentState!.validate()) {
+                              bloc.add(RegisterEvent());
+                            }
+                          },
+                          isLoading: bloc.isLoading,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        } else if (state is RegisterSuccess) {
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+              ),
+              body: SingleChildScrollView(
+                physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 4,
+                    bottom: 8,
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        registerColumn(),
+                        ButtonBuilder(
+                          text: 'إنشاء حساب',
+                          ontap: () {
+                            if (formKey.currentState!.validate()) {
+                              bloc.add(RegisterEvent());
+                            }
+                          },
+                          isLoading: bloc.isLoading,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else if (state is RegisterFailure) {
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+              ),
+              body: SingleChildScrollView(
+                physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 4,
+                    bottom: 8,
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        registerColumn(),
+                        ButtonBuilder(
+                          text: 'إنشاء حساب',
+                          ontap: () {
+                            if (formKey.currentState!.validate()) {
+                              bloc.add(RegisterEvent());
+                            }
+                          },
+                          isLoading: bloc.isLoading,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+              ),
+              body: SingleChildScrollView(
+                physics: const ScrollPhysics(parent: BouncingScrollPhysics()),
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 4,
+                    bottom: 8,
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        registerColumn(),
+                        ButtonBuilder(
+                          text: 'إنشاء حساب',
+                          ontap: () {
+                            if (formKey.currentState!.validate()) {
+                              bloc.add(RegisterEvent());
+                            }
+                          },
+                          isLoading: bloc.isLoading,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
       },
+    );
+  }
+
+  Column registerColumn() {
+    return Column(
+      children: [
+        CreateAccountScreenTitle(),
+        const AddImage(),
+        SizedBox(
+          height: 0.02.sh,
+        ),
+        NameField(
+          controller: bloc.nameController,
+        ),
+        SizedBox(
+          height: 0.02.sh,
+        ),
+        PhoneNumField(
+          controller: bloc.phoneController,
+        ),
+        SizedBox(
+          height: 0.02.sh,
+        ),
+        const BirthDateField(),
+        SizedBox(
+          height: 0.02.sh,
+        ),
+        GenderField(),
+        SizedBox(
+          height: 0.02.sh,
+        ),
+        PasswordField(controller: bloc.passwordController),
+        SizedBox(
+          height: 0.04.sh,
+        ),
+      ],
     );
   }
 }

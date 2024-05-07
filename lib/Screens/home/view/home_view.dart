@@ -2,14 +2,12 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart' as intll;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:shefa2ok/My_App/my_theme.dart';
 import 'package:shefa2ok/Screens/home/cubit/home_cubit.dart';
 import 'package:shefa2ok/core/consts/const_text.dart';
 import 'package:shefa2ok/core/services/cache_service.dart';
-import 'package:shefa2ok/main.dart';
+import 'package:shefa2ok/core/services/firebase_api.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -19,6 +17,11 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
@@ -59,6 +62,8 @@ class _HomeViewState extends State<HomeView> {
                   const SizedBox(
                     height: 16,
                   ),
+                  // ElevatedButton(onPressed: () {NotificationHelper.schedueledNotification(
+                  //           'title', 'body');}, child: Text('schedule')),
                   medicineList()
                 ],
               ),
@@ -66,13 +71,6 @@ class _HomeViewState extends State<HomeView> {
           )),
     );
   }
-
-  @override
-  // void initState() {
-  //   super.initState();
-  //   // Schedule notifications when the widget is initialized
-  //   scheduleMedicationNotifications();
-  // }
 
   StreamBuilder<QuerySnapshot<Map<String, dynamic>>> medicineList() {
     return StreamBuilder(
@@ -99,6 +97,12 @@ class _HomeViewState extends State<HomeView> {
               var timeB = intll.DateFormat("hh:mm a").parse(b['time']);
               return timeA.compareTo(timeB);
             });
+            if (medicineList.isNotEmpty &&
+                CacheService.getData(key: ConstText().currentUID) != null) {
+              for (var medicine in medicineList) {
+                handleFCMMessage(medicine);
+              }
+            }
             // var currentTime = DateTime.now();
             // Sorting the medicine list
             // Separating future times and past times
@@ -200,30 +204,4 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-
-  // void scheduleMedicationNotifications() async {
-  //   // Fetch medication data from Firestore
-  //   var medicationsSnapshot = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .where('uid',
-  //           isEqualTo: CacheService.getData(key: ConstText().currentUID))
-  //       .get();
-  //   List<dynamic> medicineList =
-  //       medicationsSnapshot.docs.first.data()['userMedicine'];
-  //   medicineList.sort((a, b) {
-  //     // Assuming 'time' is a string in the format 'HH:MM AM/PM'
-  //     var timeA = intll.DateFormat("hh:mm a").parse(a['time']);
-  //     var timeB = intll.DateFormat("hh:mm a").parse(b['time']);
-  //     return timeA.compareTo(timeB);
-  //   });
-  //   medicineList.forEach((medicationDoc) {
-  //     var medicationData = medicationDoc;
-  //     var medicationName = medicationData['medicine'];
-  //     var medicationTime = medicationData['time'];
-
-  //     // Schedule notification for each medication
-  //     // scheduleNotification(medicationName, medicationTime);
-  //   });
-  // }
-
 }

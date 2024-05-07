@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shefa2ok/core/services/cache_service.dart';
@@ -19,28 +20,86 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   late String birthday;
   late String phone;
   File? imageFile;
-
+  bool isLoading = false;
+  String imageUrl = '';
   AuthBloc() : super(AuthInitial()) {
     on<LoginEvent>((event, emit) async {
       emit(LoginLoading());
+      isLoading = true;
       try {
         phone = convertPhoneToEmail(phoneController.text.toString());
-        await signInAuth();
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: phone,
+          password: passwordController.text.toString(),
+        );
+        CacheService.setData(
+            key: ConstText().currentUID,
+            value: FirebaseAuth.instance.currentUser!.uid);
+        // print(object)
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .where('uid',
+                    isEqualTo: FirebaseAuth.instance.currentUser!
+                        .uid) // Specify the field and value to search for
+                .get();
+
+        for (QueryDocumentSnapshot<Map<String, dynamic>> docSnapshot
+            in querySnapshot.docs) {
+          Map<String, dynamic> userData = docSnapshot.data();
+
+          print(userData);
+          CacheService.setData(key: ConstText().name, value: userData['Name']);
+          // Print or use the userData as required
+        }
+
+        CacheService.setData(
+            key: ConstText().currentUID,
+            value: FirebaseAuth.instance.currentUser!.uid);
+        print(FirebaseAuth.instance.currentUser!.uid);
         print(phone);
+
         emit(LoginSuccess());
+        isLoading = false;
       } on FirebaseAuthException catch (e) {
         // print(e);
-        signInError(e, emit);
+
+        if (e.code == 'user-not-found') {
+          emit(LoginFailure(errorMsg: 'user-not-found'));
+          isLoading = false;
+        } else if (e.code == 'wrong-password') {
+          emit(LoginFailure(errorMsg: 'wrong-password'));
+          isLoading = false;
+        }
+        isLoading = false;
+        emit(LoginFailure(errorMsg: 'Not found'));
       } catch (e) {
         emit(LoginFailure(errorMsg: 'Something went wrong'));
+        isLoading = false;
       }
     });
     on<RegisterEvent>((event, emit) async {
       emit(RegisterLoading());
+      isLoading = true;
       try {
         phone = convertPhoneToEmail(phoneController.text.toString());
 
-        await signUpAuth();
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: phone,
+          password: passwordController.text.toString(),
+        );
+        if (imageFile != null) {
+          String imageName = DateTime.now().millisecondsSinceEpoch.toString();
+
+          // Upload image to Firebase Storage
+          Reference storageReference =
+              FirebaseStorage.instance.ref().child('images/$imageName');
+          await storageReference.putFile(imageFile!);
+
+          // Get download URL for the uploaded image
+          imageUrl = await storageReference.getDownloadURL();
+          print(imageUrl);
+        }
         await userInfo(
             phone,
             passwordController.text.toString(),
@@ -48,32 +107,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             phoneController.text.toString(),
             birthday,
             gender,
-            imageFile?.path.toString(), []);
+            imageUrl.toString(), [], []);
 
         emit(RegisterSuccess('Account created successfully'));
+        isLoading = false;
       } on FirebaseAuthException catch (e) {
         print(e);
-        signUpError(e, emit);
+        if (e.code == 'weak-password') {
+          emit(RegisterFailure(errorMsg: 'weak-password'));
+          isLoading = false;
+        } else if (e.code == 'email-already-in-use') {
+          emit(RegisterFailure(errorMsg: 'Account already exist'));
+          isLoading = false;
+        } else {
+          print("errrrrrrrrrrrrroooooooooooorrrrrrrrrr" + e.code);
+          isLoading = false;
+        }
       } catch (e) {
         emit(RegisterFailure(errorMsg: 'Something went wrong'));
+        isLoading = false;
       }
     });
     on<SignOutEvent>((event, emit) async {
       emit(SignOutLoading());
+      isLoading = true;
       try {
         signOut;
         passwordController.clear();
         nameController.clear();
         phoneController.clear();
+
         emit(SignOutSuccess());
+        isLoading = false;
       } catch (e) {
         emit(SignOutFailure(errorMsg: 'Something went wrong'));
+        isLoading = false;
       }
     });
 
     on<EditProfileEvent>(
       (event, emit) async {
         emit(EditProfileLoading());
+        isLoading = true;
         try {
           // Get the current user
           User? user = FirebaseAuth.instance.currentUser;
@@ -109,13 +184,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
             // Update the document with the modified data
             await documentReference.update(data);
-            CacheService.setData(key: ConstText().name, value:nameController.text.toString() );
+            CacheService.setData(
+                key: ConstText().name, value: nameController.text.toString());
+
             emit(EditProfileSuccess(msg: 'Profile updated successfully'));
+            isLoading = false;
           } else {
             emit(EditProfileFailure(errorMsg: 'Something went wrong'));
+            isLoading = false;
           }
         } catch (e) {
           emit(EditProfileFailure(errorMsg: 'Something went wrong'));
+          isLoading = false;
         }
       },
     );
@@ -130,66 +210,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print('Error signing out: $e');
     }
   }
-
-  void signInError(FirebaseAuthException e, Emitter<AuthState> emit) {
-    if (e.code == 'user-not-found') {
-      emit(LoginFailure(errorMsg: 'user-not-found'));
-    } else if (e.code == 'wrong-password') {
-      emit(LoginFailure(errorMsg: 'wrong-password'));
-    }
-  }
-
-  void signUpError(FirebaseAuthException e, Emitter<AuthState> emit) {
-    if (e.code == 'weak-password') {
-      emit(RegisterFailure(errorMsg: 'weak-password'));
-    } else if (e.code == 'email-already-in-use') {
-      emit(RegisterFailure(errorMsg: 'Account already exist'));
-    } else {
-      print("errrrrrrrrrrrrroooooooooooorrrrrrrrrr" + e.code);
-    }
-  }
-
-  Future<void> signUpAuth() async {
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: phone,
-      password: passwordController.text.toString(),
-    );
-  }
-
-  Future<void> signInAuth() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: phone,
-      password: passwordController.text.toString(),
-    );
-    CacheService.setData(
-        key: ConstText().currentUID,
-        value: FirebaseAuth.instance.currentUser!.uid);
-    // print(object)
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
-        .instance
-        .collection('users')
-        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid) // Specify the field and value to search for
-        .get();
-
-    for (QueryDocumentSnapshot<Map<String, dynamic>> docSnapshot
-    in querySnapshot.docs) {
-      Map<String, dynamic> userData = docSnapshot.data();
-
-      print(userData);CacheService.setData(key: ConstText().name, value: userData['Name']);
-      // Print or use the userData as required
-    }
-
-
-
-    CacheService.setData(
-        key: ConstText().currentUID,
-        value: FirebaseAuth.instance.currentUser!.uid);
-    print(FirebaseAuth.instance.currentUser!.uid);
-  }
 }
 
-Future<void> userInfo(
-    email, password, name, phone, birthday, gender, image, userMedicine) async {
+Future<void> userInfo(email, password, name, phone, birthday, gender, image,
+    userMedicine, userHistory) async {
   final CollectionReference users =
       FirebaseFirestore.instance.collection('users');
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -203,6 +227,7 @@ Future<void> userInfo(
       "gender": gender,
       "image": image,
       "userMedicine": userMedicine,
+      "userHistory": userHistory,
       "uid": currentUser.uid,
     });
     CacheService.setData(

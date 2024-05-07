@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shefa2ok/Screens/edit_profile_screen/edit_profile_screen.dart';
 import 'package:shefa2ok/Screens/auth/bloc/auth_bloc.dart';
 import 'package:shefa2ok/Screens/auth/view/login_or_register/login_or_register_view.dart';
-import 'package:shefa2ok/Screens/auth/view/login_or_register/widgets/login_tab.dart';
 import 'package:shefa2ok/core/consts/const_text.dart';
 import 'package:shefa2ok/core/services/cache_service.dart';
 
@@ -58,7 +57,7 @@ class _SettingsTabState extends State<SettingsTab> {
                           color: Color(0xff86CDD0),
                         ),
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EditProfileScreen()));
@@ -108,6 +107,9 @@ class _SettingsTabState extends State<SettingsTab> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => const LoginOrRegisterView()),
+                    );
+                    BotToast.showText(
+                      text: "Sign out Successfully",
                     );
                   } else if (state is SignOutFailure) {
                     isLoading = false;

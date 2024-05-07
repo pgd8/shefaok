@@ -3,6 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shefa2ok/core/consts/const_text.dart';
+
+import '../../core/services/cache_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,9 +17,16 @@ class SearchScreen extends StatefulWidget {
 class SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
   List<String> suggestions = [];
+  List<dynamic> history = [];
   List<String> suggestionsLoc = [];
   List<dynamic> interactions = [];
   List<dynamic> nonInteractions = [];
+  @override
+  void initState() {
+    _getHistory();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,9 +56,11 @@ class SearchScreenState extends State<SearchScreen> {
                         onTap: () async {
                           if (nonInteractions.contains(suggestions[index])) {
                             await successDialog();
+                            _setHistory(suggestions[index]);
                           } else if (interactions
                               .contains(suggestions[index])) {
                             await failedDialog();
+                            _setHistory(suggestions[index]);
                           }
                         },
                         child: ListTile(
@@ -59,10 +71,79 @@ class SearchScreenState extends State<SearchScreen> {
                     },
                   ),
                 )
-              : const Text('لا يوجد بيانات في الوقت الحالي'),
+              : history.isNotEmpty
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: history.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () async {
+                              if (nonInteractions.contains(history[index])) {
+                                await successDialog();
+                              } else if (interactions
+                                  .contains(history[index])) {
+                                await failedDialog();
+                              }
+                            },
+                            child: ListTile(
+                              title: Text(history[index]),
+                              // Add onTap functionality to navigate or perform other actions
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : const Text('لا يوجد بيانات في الوقت الحالي'),
         ],
       ),
     );
+  }
+
+  Future<void> _getHistory() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid',
+              isEqualTo: CacheService.getData(key: ConstText().currentUID))
+          .get();
+      var data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+
+      history = data['userHistory'];
+
+      setState(() {});
+      for (var hist in history) {
+        _getSuggestions(hist);
+      }
+
+      print(history);
+      print(
+          'Map added to list successfully for user with UID: ${CacheService.getData(key: ConstText().currentUID)}');
+    } catch (e) {
+      print('Error adding map to list: $e');
+    }
+  }
+
+  Future<void> _setHistory(String history) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid',
+              isEqualTo: CacheService.getData(key: ConstText().currentUID))
+          .get();
+      DocumentReference documentReference = querySnapshot.docs.first.reference;
+      var data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+
+      List<dynamic> currentList = data['userHistory'];
+
+      currentList.add(history);
+
+      await documentReference.update({'userHistory': currentList});
+
+      print(
+          'Map added to list successfully for user with UID: ${CacheService.getData(key: ConstText().currentUID)}');
+    } catch (e) {
+      print('Error adding map to list: $e');
+    }
   }
 
   Future<void> _getSuggestions(String query) async {

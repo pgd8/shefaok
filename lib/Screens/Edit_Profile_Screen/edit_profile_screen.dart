@@ -10,6 +10,7 @@ import 'package:shefa2ok/Screens/auth/widgets/gender_field.dart';
 import 'package:shefa2ok/Screens/auth/widgets/name_field.dart';
 import 'package:shefa2ok/Screens/auth/widgets/phone_num_field.dart';
 import 'package:shefa2ok/Screens/auth/widgets/screen_title.dart';
+import 'package:shefa2ok/Screens/tabs/tab_view.dart';
 import 'package:shefa2ok/core/consts/const_text.dart';
 import 'package:shefa2ok/core/shared_widgets/button_builder.dart';
 
@@ -30,7 +31,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(390, 844));
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined),
+          onPressed: () {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const TabView(
+                          index: 3,
+                        )));
+          },
+        ),
+      ),
       body: Form(
         key: formKey,
         child: SingleChildScrollView(

@@ -11,21 +11,20 @@ import 'package:shefa2ok/tabs/settings_tab.dart';
 class TabView extends StatefulWidget {
   static const String routeName = "Home Screen";
 
-  const TabView({super.key});
-
+  const TabView({super.key, this.index});
+  final int? index;
   @override
   State<TabView> createState() => _TabViewState();
 }
 
 class _TabViewState extends State<TabView> {
   int index = 0;
-
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(390, 844));
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: index,
+        currentIndex: widget.index ?? index,
         selectedIconTheme: IconThemeData(size: 34.sp),
         selectedItemColor: MyTheme.primaryColor,
         unselectedItemColor: Colors.grey,
@@ -49,13 +48,13 @@ class _TabViewState extends State<TabView> {
           //     icon: Icon(Icons.chat_bubble_outline), label: "شات بوت"),
         ],
       ),
-      body: tabs[index],
+      body: tabs[widget.index ?? index],
     );
   }
 
   List<Widget> tabs = [
     const HomeView(),
-    CheckTab(),
+    const CheckTab(),
     BlocProvider<ForAddCubit>(
       create: (context) => ForAddCubit()..fetchMedicineData(),
       child: const AddTimeTap(),

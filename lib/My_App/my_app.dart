@@ -6,7 +6,6 @@ import 'package:shefa2ok/Screens/auth/view/Create_Password/create_password_scree
 import 'package:shefa2ok/Screens/edit_profile_screen/edit_profile_screen.dart';
 import 'package:shefa2ok/Screens/tabs/tab_view.dart';
 import 'package:shefa2ok/Screens/splash/splash_screen.dart';
-import 'package:shefa2ok/Screens/search_view/search_screen.dart';
 import 'package:shefa2ok/Screens/auth/view/login_or_register/login_or_register_view.dart';
 
 class MyApp extends StatelessWidget {

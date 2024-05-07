@@ -23,9 +23,11 @@ class LoginLoading extends AuthState {}
 class LoginSuccess extends AuthState {}
 
 class LoginFailure extends AuthState {
-  String? errorMsg;
+  final String errorMsg;
 
-  LoginFailure({required errorMsg});
+  LoginFailure({required this.errorMsg});
+
+  
 }
 
 class SignOutLoading extends AuthState {}

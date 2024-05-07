@@ -18,6 +18,7 @@ class CheckTab extends StatefulWidget {
 
 class _CheckTabState extends State<CheckTab> {
   File? image;
+  bool isDone = false;
   //   List<String> suggestions = [];
   // List<String> suggestionsLoc = [];
   List<dynamic> interactions = [];
@@ -26,10 +27,9 @@ class _CheckTabState extends State<CheckTab> {
     var pickedimage = await ImagePicker().pickImage(source: source);
     if (pickedimage != null) {
       image = File(pickedimage.path);
+
       await _processImage();
     }
-
-
   }
 
   Future<void> _processImage() async {
@@ -47,7 +47,10 @@ class _CheckTabState extends State<CheckTab> {
     print(extractedText);
 
     for (String text in extractedText) {
-      await _getSuggestions(text);
+      if (isDone) {
+      } else {
+        await _getSuggestions(text);
+      }
     }
 
     print(extractedText);
@@ -156,6 +159,7 @@ class _CheckTabState extends State<CheckTab> {
   Future<void> _getSuggestions(String query) async {
     // Clear previous suggestions
     setState(() {
+      isDone = false;
       // suggestions.clear();
     });
 
@@ -170,6 +174,7 @@ class _CheckTabState extends State<CheckTab> {
         nonInteractions = data2['nonInteractionSearch'];
         for (var nonInteraction in nonInteractions) {
           if (nonInteraction.toLowerCase().contains(query.toLowerCase())) {
+            isDone = true;
             return successDialog();
           }
         }
@@ -184,6 +189,7 @@ class _CheckTabState extends State<CheckTab> {
       interactions = data['interactionSearch'];
       for (var interaction in interactions) {
         if (interaction.toLowerCase().contains(query.toLowerCase())) {
+          isDone = true;
           return failedDialog();
         }
       }
