@@ -47,9 +47,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         for (QueryDocumentSnapshot<Map<String, dynamic>> docSnapshot
             in querySnapshot.docs) {
           Map<String, dynamic> userData = docSnapshot.data();
-
-          print(userData);
           CacheService.setData(key: ConstText().name, value: userData['Name']);
+          print(userData);
+
           // Print or use the userData as required
         }
 
